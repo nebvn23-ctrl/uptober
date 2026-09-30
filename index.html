@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>$UPTOBER | Going up</title>
+<meta name="description" content="The meme for everyone tired of red candles. We're not done yet. $UPTOBER.">
+<meta name="theme-color" content="#020a05">
+<link rel="icon" type="image/png" href="assets/icon-32.png">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<meta property="og:title" content="$UPTOBER">
+<meta property="og:description" content="We're not done yet.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300..800&family=Share+Tech+Mono&family=Syncopate:wght@400;700&display=swap">
+<style>
+:root{
+  --deep:#020a05;
+  --pine:#06200f;
+  --lime:#7dff5a;
+  --lime-2:#b9ff9e;
+  --neon:#39ff6a;
+  --red:#ff3b4f;
+  --paper:#effbe9;
+  --paper-2:rgba(239,251,233,.78);
+  --paper-3:rgba(239,251,233,.52);
+  --line:rgba(125,255,90,.22);
+  --pad:clamp(20px,5vw,84px);
+  --wide:"Syncopate","Arial Black",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --led:"Share Tech Mono",ui-monospace,Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.2,.7,.1,1);
+  --glow:0 0 6px rgba(125,255,90,.9),0 0 24px rgba(57,255,106,.55),0 0 70px rgba(57,255,106,.35);
+  --glow-soft:0 0 18px rgba(57,255,106,.35);
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--deep:#020a05;--paper:#effbe9}}
+:root[data-theme="dark"]{--deep:#020a05;--paper:#effbe9}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+html,body{margin:0;overflow-x:clip}
+body{background:var(--deep);color:var(--paper);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body.is-locked{overflow:hidden}
+img{display:block;max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+
+/* ---------- 3D shaft behind everything ---------- */
+#shaft{position:fixed;inset:0;z-index:0;width:100%;height:100%;display:block;background:radial-gradient(90% 70% at 50% 60%,#0b3a1a,#020a05)}
+.film{position:fixed;inset:0;z-index:70;pointer-events:none}
+.film__grain{position:absolute;inset:-50%;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain .9s steps(5) infinite}
+@keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-4%)}60%{transform:translate(-5%,-1%)}80%{transform:translate(4%,3%)}100%{transform:translate(0,0)}}
+.film__vig{position:absolute;inset:0;background:radial-gradient(120% 95% at 50% 50%,transparent 55%,rgba(0,4,2,.7))}
+
+/* ---------- The tower: floors stack upward, scrolling takes you up ---------- */
+#spacer{width:1px}
+.tower{position:fixed;left:0;right:0;top:0;z-index:10;display:flex;flex-direction:column-reverse;will-change:transform}
+.floor{position:relative;min-height:100svh;padding:calc(110px + env(safe-area-inset-top,0px)) calc(var(--pad) + 64px) 12vh var(--pad);display:flex;flex-direction:column;justify-content:center}
+.floor__tag{position:absolute;left:var(--pad);top:calc(96px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:12px;font-family:var(--led);font-size:14px;letter-spacing:.2em;color:var(--lime);text-shadow:var(--glow-soft)}
+.floor__tag::after{content:"";width:60px;height:1px;background:linear-gradient(90deg,var(--lime),transparent)}
+.floor::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(125,255,90,.45),transparent)}
+
+/* reveal as floors come down into view */
+.rv{opacity:0;transform:translateY(-50px);filter:blur(10px);transition:opacity 1s var(--ease),transform 1.2s var(--ease),filter 1s var(--ease)}
+.rv.in{opacity:1;transform:none;filter:blur(0)}
+.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.2s}.rv.d3{transition-delay:.3s}
+
+.glow{color:#fff;text-shadow:var(--glow)}
+.big{margin:0;font-family:var(--wide);font-weight:700;font-size:clamp(34px,5.4vw,92px);line-height:1;letter-spacing:-.01em;text-transform:uppercase}
+.big em{font-style:normal;color:var(--lime)}
+.copy{margin:22px 0 0;max-width:46ch;font-size:clamp(17px,1.4vw,21px);line-height:1.55;color:var(--paper-2)}
+.small{font-family:var(--led);font-size:13px;letter-spacing:.18em;color:var(--lime-2)}
+
+/* image panels */
+.shot{position:relative;margin:0;overflow:hidden;border-radius:18px;background:#021108;box-shadow:0 0 0 1px rgba(125,255,90,.35),0 0 40px -6px rgba(57,255,106,.4),0 40px 80px -30px rgba(0,0,0,.9);transform-style:preserve-3d;will-change:transform}
+.shot img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease),filter .6s}
+.shot:hover img{transform:scale(1.05);filter:saturate(1.15) brightness(1.06)}
+.shot::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(185,255,158,.22) 48%,transparent 60%);transform:translateX(-120%);transition:transform 1.2s var(--ease);pointer-events:none}
+.shot:hover::after{transform:translateX(120%)}
+.shot figcaption{position:absolute;left:14px;bottom:12px;padding:6px 12px;border-radius:999px;background:rgba(2,10,5,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:var(--led);font-size:12px;letter-spacing:.14em;color:var(--lime-2)}
+
+/* ---------- Floor indicator ---------- */
+.ind{position:fixed;right:16px;top:50%;z-index:40;transform:translateY(-50%);display:flex;align-items:center;gap:14px;pointer-events:none;opacity:0;transition:opacity .8s}
+.ind.on{opacity:1}
+.ind__box{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 14px 12px;border-radius:14px;background:rgba(2,10,5,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 0 0 1px rgba(125,255,90,.35),0 0 30px rgba(57,255,106,.25)}
+.ind__arrow{width:18px;height:14px;background:var(--lime);clip-path:polygon(50% 0,100% 100%,0 100%);filter:drop-shadow(0 0 6px var(--lime));animation:up 1s ease-in-out infinite}
+@keyframes up{0%,100%{transform:translateY(2px);opacity:.6}50%{transform:translateY(-3px);opacity:1}}
+.ind__num{font-family:var(--led);font-size:40px;line-height:1;color:var(--lime);text-shadow:var(--glow);min-width:2ch;text-align:center}
+.ind__lab{font-family:var(--led);font-size:10px;letter-spacing:.24em;color:var(--paper-3)}
+.ind__track{position:relative;width:2px;height:190px;background:rgba(125,255,90,.18)}
+.ind__track i{position:absolute;left:-4px;bottom:var(--p,0%);width:10px;height:10px;border-radius:50%;background:var(--lime);box-shadow:var(--glow);transform:translateY(50%)}
+@media (max-width:760px){.ind{top:calc(70px + env(safe-area-inset-top,0px));transform:none;right:12px}.ind__track{display:none}.ind__num{font-size:22px}.ind__box{padding:7px 8px;flex-direction:row;gap:6px}.ind__lab{display:none}}
+
+/* ---------- Header ---------- */
+.bar{position:fixed;left:0;right:0;top:0;z-index:50;padding-top:env(safe-area-inset-top,0px);background:linear-gradient(180deg,rgba(2,10,5,.8),rgba(2,10,5,0))}
+.bar__in{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px var(--pad)}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand img{width:38px;height:38px;border-radius:50%;box-shadow:0 0 0 1px rgba(125,255,90,.6),0 0 18px rgba(57,255,106,.5)}
+.brand span{font-family:var(--wide);font-weight:700;font-size:15px;letter-spacing:.08em;text-shadow:var(--glow-soft)}
+.bar__acts{display:flex;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:rgba(2,10,5,.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;transition:border-color .3s,box-shadow .3s}
+.chip:hover{border-color:var(--lime);box-shadow:var(--glow-soft)}
+.chip[hidden]{display:none}
+.xmark{width:15px;height:15px;flex:none}
+
+/* ---------- CA: an LED ticker board ---------- */
+.ca{position:relative;display:flex;align-items:center;gap:12px;height:62px;padding:0 6px 0 18px;border-radius:14px;overflow:hidden;min-width:0;max-width:100%;
+  background:radial-gradient(circle,rgba(125,255,90,.12) 1px,transparent 1.6px) 0 0/6px 6px,linear-gradient(180deg,#031a0b,#010703);
+  box-shadow:0 0 0 1px rgba(125,255,90,.45),inset 0 0 30px rgba(57,255,106,.12),0 0 40px -10px rgba(57,255,106,.6)}
+.ca::before{content:"";position:absolute;top:0;bottom:0;width:40%;left:-40%;background:linear-gradient(90deg,transparent,rgba(185,255,158,.25),transparent);animation:scan 3.2s linear infinite;pointer-events:none}
+@keyframes scan{to{left:120%}}
+.ca__tag{font-family:var(--led);font-size:15px;letter-spacing:.14em;color:var(--lime);text-shadow:var(--glow);flex:none}
+.ca__val{font-family:var(--led);font-size:16px;letter-spacing:.06em;color:var(--lime-2);text-shadow:0 0 8px rgba(125,255,90,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.ca__copy{position:relative;flex:none;height:48px;padding:0 20px;border:0;border-radius:10px;background:var(--lime);color:#021006;font-family:var(--wide);font-weight:700;font-size:12px;letter-spacing:.1em;cursor:pointer;box-shadow:0 0 20px rgba(125,255,90,.5);transition:transform .2s,box-shadow .3s}
+.ca__copy:hover{box-shadow:0 0 34px rgba(125,255,90,.8)}
+.ca__copy:active{transform:scale(.96)}
+.ca__copy:disabled{opacity:.45;cursor:default;box-shadow:none}
+.ca.is-empty .ca__val{animation:blinkled 1.6s steps(1) infinite}
+@keyframes blinkled{50%{opacity:.35}}
+
+/* X button: an arrow launches when you hover */
+.xbtn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:12px;height:62px;padding:0 30px;border-radius:14px;text-decoration:none;font-family:var(--wide);font-weight:700;font-size:13px;letter-spacing:.12em;color:var(--lime);background:rgba(2,16,7,.75);box-shadow:0 0 0 1px var(--lime),0 0 30px rgba(57,255,106,.35),inset 0 0 20px rgba(57,255,106,.15);overflow:hidden;transition:color .35s,background .35s,box-shadow .35s;text-shadow:var(--glow-soft)}
+.xbtn .xmark{width:17px;height:17px}
+.xbtn__up{position:absolute;right:14px;bottom:-26px;width:14px;height:22px;background:var(--lime);clip-path:polygon(50% 0,100% 45%,65% 45%,65% 100%,35% 100%,35% 45%,0 45%);filter:drop-shadow(0 0 6px var(--lime));opacity:0}
+.xbtn:hover{background:var(--lime);color:#021006;text-shadow:none;box-shadow:0 0 0 1px var(--lime),0 0 60px rgba(57,255,106,.8)}
+.xbtn:hover .xbtn__up{animation:launch .9s var(--ease) infinite;background:#021006;filter:none}
+@keyframes launch{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(-90px);opacity:0}}
+.rise{position:fixed;z-index:95;pointer-events:none;font-family:var(--led);font-size:18px;color:var(--lime);text-shadow:var(--glow);white-space:nowrap;transform:translate(-50%,-50%)}
+
+/* ---------- Intro: the elevator ---------- */
+.lift{position:fixed;inset:0;z-index:100;overflow:hidden;background:#010503}
+.lift.is-open{pointer-events:none}
+.lift__gap{position:absolute;left:50%;top:0;bottom:0;width:2px;transform:translateX(-50%);background:var(--lime);box-shadow:0 0 40px 10px rgba(57,255,106,.5);opacity:.25}
+.door{position:absolute;top:0;bottom:0;width:50.2%;z-index:2;
+  background:linear-gradient(100deg,rgba(255,255,255,.0) 20%,rgba(255,255,255,.18) 38%,rgba(255,255,255,0) 52%),repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,rgba(0,0,0,.05) 1px 3px),linear-gradient(180deg,#5c6468,#8d969a 45%,#4f575b)}
+.door--l{left:0;box-shadow:inset -3px 0 6px rgba(0,0,0,.6)}
+.door--r{right:0;box-shadow:inset 3px 0 6px rgba(0,0,0,.6)}
+.door::before{content:"";position:absolute;inset:14% 12%;border:1px solid rgba(0,0,0,.25);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.door::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(57,255,106,.14) 50%,transparent 70%);background-size:100% 300%;animation:sheen 5s ease-in-out infinite}
+@keyframes sheen{0%{background-position:0 100%}100%{background-position:0 0}}
+.lift__top{position:absolute;left:0;right:0;top:0;z-index:3;height:calc(110px + env(safe-area-inset-top,0px));display:flex;align-items:flex-end;justify-content:center;padding-bottom:16px;background:linear-gradient(180deg,#141a1c,#23292b);box-shadow:0 6px 20px rgba(0,0,0,.6)}
+.display{display:flex;align-items:center;gap:14px;padding:10px 20px;border-radius:8px;background:#010302;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),inset 0 0 20px rgba(0,0,0,.9)}
+.display__arr{width:16px;height:14px;background:var(--red);clip-path:polygon(0 0,100% 0,50% 100%);filter:drop-shadow(0 0 6px var(--red));animation:blinkled 1s steps(1) infinite}
+.display__txt{font-family:var(--led);font-size:clamp(22px,3vw,34px);letter-spacing:.18em;color:var(--red);text-shadow:0 0 10px rgba(255,59,79,.8);min-width:9ch}
+.display.is-up .display__arr{background:var(--lime);clip-path:polygon(50% 0,100% 100%,0 100%);filter:drop-shadow(0 0 6px var(--lime));animation:none}
+.display.is-up .display__txt{color:var(--lime);text-shadow:var(--glow)}
+.call{position:absolute;right:max(6vw,24px);top:50%;z-index:4;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px 18px;border-radius:14px;background:linear-gradient(180deg,#2a3134,#1a1f21);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 20px 40px rgba(0,0,0,.6)}
+.call__btn{position:relative;width:74px;height:74px;border-radius:50%;border:0;cursor:pointer;background:radial-gradient(circle at 40% 35%,#dfe6e8,#8d969a 60%,#5c6468);box-shadow:inset 0 -3px 6px rgba(0,0,0,.4),0 0 0 4px #111,0 0 0 5px rgba(255,255,255,.12)}
+.call__btn::before{content:"";position:absolute;left:50%;top:50%;width:22px;height:20px;transform:translate(-50%,-55%);background:#2a3134;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.call__btn.lit{background:radial-gradient(circle at 40% 35%,#eaffdf,#7dff5a 55%,#2e9b3c);box-shadow:inset 0 -3px 6px rgba(0,0,0,.3),0 0 0 4px #111,0 0 40px 6px rgba(125,255,90,.7)}
+.call__btn.lit::before{background:#063a12}
+.call__lab{font-family:var(--led);font-size:11px;letter-spacing:.2em;color:rgba(255,255,255,.6);text-align:center;line-height:1.4}
+.ding{position:absolute;left:50%;top:calc(80px + env(safe-area-inset-top,0px));z-index:5;transform:translateX(-50%);font-family:var(--wide);font-weight:700;font-size:clamp(28px,4vw,54px);letter-spacing:.3em;color:#fff;text-shadow:var(--glow);opacity:0;pointer-events:none}
+.flood{position:absolute;inset:0;z-index:1;background:radial-gradient(40% 70% at 50% 55%,rgba(185,255,158,.95),rgba(57,255,106,.5) 40%,transparent 75%);opacity:0}
+.lift__skip{position:absolute;left:var(--pad);bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:6;background:none;border:0;padding:8px;font-family:var(--led);font-size:12px;letter-spacing:.18em;color:rgba(255,255,255,.55);cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+.lift__skip:hover{color:#fff}
+@media (max-width:760px){.call{right:50%;top:auto;bottom:calc(16vh + env(safe-area-inset-bottom,0px));transform:translateX(50%)}}
+
+/* ---------- Lobby (hero) ---------- */
+.lobby{display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:4vw}
+.lobby__tick{display:inline-flex;align-items:center;gap:12px;font-family:var(--led);font-size:15px;letter-spacing:.24em;color:var(--lime);text-shadow:var(--glow-soft)}
+.lobby__tick b{padding:4px 10px;border-radius:6px;background:rgba(125,255,90,.12);box-shadow:inset 0 0 0 1px rgba(125,255,90,.4);font-weight:400}
+.t3d{--rx:0deg;--ry:0deg;margin:.25em 0 0 -.03em;display:flex;perspective:1000px;font-family:var(--wide);font-weight:700;font-size:clamp(46px,min(9.4vw,17svh),178px);line-height:.95;letter-spacing:-.02em;user-select:none}
+.t3d__in{display:flex;transform-style:preserve-3d;transform:rotateX(var(--rx)) rotateY(var(--ry))}
+.t3d__l{position:relative;display:inline-block;transform-style:preserve-3d}
+.t3d__k{position:absolute;left:0;top:0;color:var(--k);transform:translateZ(calc(var(--i) * -.012em))}
+.t3d__f{position:relative;display:block;color:transparent;transform:translateZ(.002em);
+  background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.95) 48%,transparent 60%) var(--shine,-200%) 0/55% 100% no-repeat,
+             linear-gradient(180deg,#f6ffef 0%,#c9ffb3 30%,#6cf04e 55%,#b8ff9a 72%,#2f9e2a 100%);
+  -webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 16px rgba(57,255,106,.55))}
+.lobby__sub{margin:.5em 0 0;font-family:var(--wide);font-weight:400;font-size:clamp(14px,1.4vw,20px);letter-spacing:.3em;text-transform:uppercase;color:var(--lime-2);text-shadow:var(--glow-soft)}
+.lobby__lede{margin:22px 0 0;max-width:36ch;font-size:clamp(17px,1.35vw,20px);color:var(--paper-2)}
+.lobby__acts{margin-top:30px;display:flex;flex-wrap:wrap;gap:12px;max-width:640px}
+.lobby__acts .ca{flex:1 1 320px}
+.portal{position:relative;justify-self:center;width:min(34vw,56svh,520px);aspect-ratio:.82;border-radius:999px 999px 26px 26px;overflow:hidden;box-shadow:0 0 0 1px var(--lime),0 0 60px 4px rgba(57,255,106,.45),0 0 160px rgba(57,255,106,.3)}
+.portal img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.portal__rise{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.portal__rise i{position:absolute;bottom:-40px;width:10px;height:26px;background:var(--lime);clip-path:polygon(50% 0,100% 45%,65% 45%,65% 100%,35% 100%,35% 45%,0 45%);filter:drop-shadow(0 0 8px var(--lime));opacity:.9;animation:fly var(--d,3s) linear infinite;animation-delay:var(--dl,0s)}
+@keyframes fly{to{transform:translateY(calc(-1 * (100% + 900px)))}}
+.lobby__cue{position:absolute;left:50%;bottom:calc(26px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--led);font-size:12px;letter-spacing:.24em;color:var(--lime-2)}
+.lobby__cue i{width:16px;height:14px;background:var(--lime);clip-path:polygon(50% 0,100% 100%,0 100%);filter:drop-shadow(0 0 6px var(--lime));animation:up 1s ease-in-out infinite}
+
+/* ---------- Floors ---------- */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:5vw;align-items:center;max-width:1300px;margin:0 auto;width:100%}
+.split--rev > :first-child{order:2}
+.wide-shot{aspect-ratio:3/2}
+.tall-shot{aspect-ratio:9/14;max-height:78svh;justify-self:center;width:min(100%,460px)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,2vw,28px);max-width:1300px;margin:5vh auto 0;width:100%;align-items:end}
+.pair .shot:nth-child(1){aspect-ratio:4/5}
+.pair .shot:nth-child(2){aspect-ratio:4/5;transform:translateY(-8vh)}
+.trio{display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:clamp(12px,1.8vw,24px);max-width:1300px;margin:5vh auto 0;width:100%;align-items:center}
+.trio .shot{aspect-ratio:3/4}
+.trio .shot:nth-child(1){aspect-ratio:3/2}
+.center{max-width:1100px;margin:0 auto;text-align:center}
+.center .copy{margin-left:auto;margin-right:auto}
+.mega{margin:0;font-family:var(--wide);font-weight:700;font-size:clamp(40px,8vw,150px);line-height:.95;letter-spacing:-.02em;text-transform:uppercase;color:#fff;text-shadow:var(--glow)}
+.mega span{display:inline-block}
+.head{max-width:1300px;margin:0 auto;width:100%}
+
+/* ---------- Rooftop ---------- */
+.roof{text-align:center}
+.roof .banner{max-width:1300px;margin:0 auto;aspect-ratio:3/1;border-radius:20px}
+.roof__grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:5vw;align-items:center;max-width:1300px;margin:8vh auto 0;text-align:left}
+.roof__grid .shot{aspect-ratio:1}
+.roof__acts{margin-top:30px;display:flex;flex-wrap:wrap;gap:12px}
+.roof__acts .ca{flex:1 1 320px}
+.foot{max-width:1300px;margin:12vh auto 0;padding:26px 0 0;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px 32px;font-size:14px;color:var(--paper-3);text-align:left}
+.foot p{margin:0;max-width:62ch}
+.foot__links{display:flex;gap:18px}
+.foot a{color:var(--paper-2);text-underline-offset:4px}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:95;transform:translate(-50%,20px);padding:12px 20px;border-radius:12px;background:var(--lime);color:#021006;font-weight:800;font-size:15px;box-shadow:0 0 40px rgba(57,255,106,.6);opacity:0;pointer-events:none;transition:opacity .3s,transform .4s var(--ease)}
+.toast.is-on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:900px){
+  .lobby{grid-template-columns:1fr;gap:26px}
+  .portal{order:-1;width:min(46vw,28svh)}
+  #lobby{padding-top:calc(86px + env(safe-area-inset-top,0px));padding-bottom:6vh}
+  #lobby .floor__tag{display:none}
+  .lobby__lede{margin-top:14px}
+  .lobby__acts{margin-top:18px}
+  .split,.split--rev{grid-template-columns:1fr}
+  .split--rev > :first-child{order:0}
+  .pair{grid-template-columns:1fr 1fr}
+  .pair .shot:nth-child(2){transform:translateY(-4vh)}
+  .trio{grid-template-columns:1fr 1fr}
+  .trio .shot:nth-child(1){grid-column:1 / -1}
+  .roof__grid{grid-template-columns:1fr}
+  .floor{padding-top:calc(120px + env(safe-area-inset-top,0px));padding-right:var(--pad)}
+}
+@media (max-width:560px){
+  .brand span{display:none}
+  .chip--ca{display:none!important}
+  .lobby__acts .ca,.roof__acts .ca{flex-basis:100%}
+  .xbtn{width:100%}
+  .lobby__cue{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .film__grain,.ca::before,.portal__rise i,.door::after,.ind__arrow,.lobby__cue i{animation:none}
+  .rv{opacity:1;transform:none;filter:none}
+}
+</style>
+</head>
+<body class="is-locked">
+
+<canvas id="shaft" aria-hidden="true"></canvas>
+<div class="film" aria-hidden="true"><div class="film__grain"></div><div class="film__vig"></div></div>
+
+<!-- Intro: the elevator -->
+<div class="lift" id="lift" role="dialog" aria-label="Intro. Call the elevator to enter.">
+  <div class="flood" id="flood"></div>
+  <div class="lift__gap"></div>
+  <div class="door door--l" id="doorL"></div>
+  <div class="door door--r" id="doorR"></div>
+  <div class="lift__top"><div class="display" id="display"><span class="display__arr"></span><span class="display__txt" id="dispTxt">SEPTEMBER</span></div></div>
+  <div class="ding" id="ding">DING</div>
+  <div class="call"><button class="call__btn" id="callBtn" aria-label="Call the elevator"></button><div class="call__lab">CALL THE<br>ELEVATOR</div></div>
+  <button class="lift__skip" id="skip">Skip intro</button>
+</div>
+
+<!-- Floor indicator -->
+<div class="ind" id="ind" aria-hidden="true">
+  <div class="ind__track"><i id="indDot"></i></div>
+  <div class="ind__box"><span class="ind__arrow"></span><span class="ind__num" id="indNum">01</span><span class="ind__lab">FLOOR</span></div>
+</div>
+
+<header class="bar" id="bar">
+  <div class="bar__in">
+    <a class="brand" href="#lobby" id="brand" aria-label="UPTOBER, back to the lobby"><img src="assets/icon-180.png" alt=""><span data-ticker>$UPTOBER</span></a>
+    <div class="bar__acts">
+      <button class="chip chip--ca" id="barCa" hidden>Copy CA</button>
+      <a class="chip" data-x target="_blank" rel="noopener"><svg class="xmark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Follow</a>
+    </div>
+  </div>
+</header>
+
+<div id="spacer" aria-hidden="true"></div>
+
+<!-- The tower: first floor in the code is the bottom floor on screen -->
+<main class="tower" id="tower">
+
+  <section class="floor" id="lobby" data-floor="1" aria-label="Lobby">
+    <div class="floor__tag">FLOOR 01 / LOBBY</div>
+    <div class="lobby">
+      <div>
+        <div class="lobby__tick rv"><b data-ticker>$UPTOBER</b> DESTINATION: UP</div>
+        <h1 class="t3d" id="title" aria-label="UPTOBER">UPTOBER</h1>
+        <p class="lobby__sub rv d1">We're not done yet</p>
+        <p class="lobby__lede rv d2">The meme for everyone tired of red candles and ready to bring some life back to the trenches.</p>
+        <div class="lobby__acts rv d3">
+          <div class="ca" data-ca>
+            <span class="ca__tag">CA</span>
+            <span class="ca__val" data-ca-val></span>
+            <button class="ca__copy" data-ca-copy>COPY</button>
+          </div>
+          <a class="xbtn" data-x target="_blank" rel="noopener"><svg class="xmark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>FOLLOW ON X<span class="xbtn__up" aria-hidden="true"></span></a>
+        </div>
+      </div>
+      <div class="portal rv d1" id="portal">
+        <img src="assets/main.webp" alt="The UPTOBER shiba standing proudly with eyes closed, glowing green, surrounded by rising green prices and arrows">
+        <div class="portal__rise" id="rise"></div>
+      </div>
+    </div>
+    <div class="lobby__cue" aria-hidden="true"><i></i>SCROLL TO GO UP</div>
+  </section>
+
+  <section class="floor" data-floor="4" aria-label="Floor 4">
+    <div class="floor__tag">FLOOR 04</div>
+    <div class="split">
+      <div>
+        <h2 class="big glow rv">Everyone's waiting for <em>UPTOBER</em> energy.</h2>
+        <p class="copy rv d1">Let's build it. Not after the party starts. Before.</p>
+      </div>
+      <figure class="shot wide-shot rv d2"><img src="assets/bell.webp" alt="The shiba on a marble balcony beside the opening bell as confetti falls over a cheering trading floor" loading="lazy"><figcaption>OPENING BELL</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="floor" data-floor="7" aria-label="Floor 7">
+    <div class="floor__tag">FLOOR 07</div>
+    <div class="split split--rev">
+      <div>
+        <p class="small rv">THE DREAM</p>
+        <h2 class="big glow rv d1">Every degen who <em>survived the red days.</em></h2>
+        <p class="copy rv d2">UPTOBER is the dream of every degen who kept looking for something worth backing. It takes that energy and turns it into a simple mission: become the meme people rally around when excitement returns to the trenches.</p>
+      </div>
+      <figure class="shot tall-shot rv d1"><img src="assets/pillar.webp" alt="The glowing shiba standing on top of a giant green candle above a green city and clouds, arrows firing upward" loading="lazy"><figcaption>ALL-TIME HIGH</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="floor" data-floor="10" aria-label="Floor 10">
+    <div class="floor__tag">FLOOR 10</div>
+    <div class="head">
+      <h2 class="big glow rv">Not another <em>complicated pitch.</em></h2>
+      <p class="copy rv d1">A narrative anyone can understand, share, and make their own.</p>
+    </div>
+    <div class="pair">
+      <figure class="shot rv"><img src="assets/bike.webp" alt="The shiba in a leather jacket riding a motorcycle through a rainy night city with cash flying from a bag and police behind" loading="lazy"><figcaption>ESCAPE VELOCITY</figcaption></figure>
+      <figure class="shot rv d2"><img src="assets/boss.webp" alt="The shiba in a pinstripe suit, fedora and gold chain beside a black car in the rain, an umbrella held over him" loading="lazy"><figcaption>THE BOSS</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="floor" data-floor="13" aria-label="Floor 13">
+    <div class="floor__tag">FLOOR 13</div>
+    <div class="center">
+      <p class="small rv">THE AMBITION</p>
+      <h2 class="mega rv d1" data-split>Don't show up after the party starts.</h2>
+      <p class="copy rv d2">Help get it started, one meme and one believer at a time.</p>
+    </div>
+  </section>
+
+  <section class="floor" data-floor="16" aria-label="Floor 16">
+    <div class="floor__tag">FLOOR 16</div>
+    <div class="head">
+      <h2 class="big glow rv">Bullish energy, <em>nothing else.</em></h2>
+      <p class="copy rv d1">No complicated lore. Just a mood everyone recognizes and a reason to build something together.</p>
+    </div>
+    <div class="pair">
+      <figure class="shot rv"><img src="assets/yacht.webp" alt="The shiba with sunglasses on a yacht deck at sunset beside a champagne tower as cash flies" loading="lazy"><figcaption>SEASON OPEN</figcaption></figure>
+      <figure class="shot rv d2"><img src="assets/throne.webp" alt="The shiba in a green and gold uniform on a marble throne before a green chart, surrounded by chests of coins" loading="lazy"><figcaption>THE THRONE</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="floor" data-floor="19" aria-label="Floor 19">
+    <div class="floor__tag">FLOOR 19</div>
+    <div class="split">
+      <div>
+        <h2 class="big glow rv">For everyone <em>tired of red candles.</em></h2>
+        <p class="copy rv d1">Simple to understand, easy to meme, and built around one shared mood.</p>
+      </div>
+      <div class="pair" style="margin-top:0">
+        <figure class="shot rv"><img src="assets/trench.webp" alt="The shiba in a helmet and trench coat with binoculars in a muddy trench full of green-charted monitors" loading="lazy"><figcaption>THE TRENCHES</figcaption></figure>
+        <figure class="shot rv d2"><img src="assets/desk.webp" alt="The shiba in a shirt and suspenders relaxing before a wall of green charts, gold watch on his paw" loading="lazy"><figcaption>ALL GREEN</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="floor" data-floor="22" aria-label="Floor 22">
+    <div class="floor__tag">FLOOR 22</div>
+    <div class="center">
+      <h2 class="mega rv" data-split>We're not done yet.</h2>
+    </div>
+  </section>
+
+  <section class="floor" data-floor="25" aria-label="Floor 25">
+    <div class="floor__tag">FLOOR 25</div>
+    <div class="head">
+      <h2 class="big glow rv">Up is the <em>only direction.</em></h2>
+    </div>
+    <div class="trio">
+      <figure class="shot rv"><img src="assets/sky.webp" alt="The shiba in goggles and a flight suit skydiving out of a cargo plane above golden clouds at sunset" loading="lazy"><figcaption>ALTITUDE</figcaption></figure>
+      <figure class="shot rv d1"><img src="assets/walk.webp" alt="The shiba in a long black coat and sunglasses walking away from a huge explosion as cash flies" loading="lazy"><figcaption>DON'T LOOK BACK</figcaption></figure>
+      <figure class="shot rv d2"><img src="assets/lambo.webp" alt="The glowing shiba standing beside a green supercar in a dark penthouse as green cash rains down" loading="lazy"><figcaption>DELIVERED</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="floor" data-floor="28" aria-label="Floor 28">
+    <div class="floor__tag">FLOOR 28</div>
+    <div class="center">
+      <p class="small rv">NO PROMISES</p>
+      <h2 class="big glow rv d1">No guaranteed runners. Just a reason to back an idea <em>you actually want to see grow.</em></h2>
+    </div>
+  </section>
+
+  <section class="floor roof" id="roof" data-floor="31" aria-label="Rooftop">
+    <div class="floor__tag">FLOOR 31 / ROOFTOP</div>
+    <figure class="shot banner rv"><img src="assets/banner.webp" alt="The UPTOBER shiba between giant glowing green letters spelling UPTOBER, dollar signs floating" loading="lazy"></figure>
+    <div class="roof__grid">
+      <figure class="shot rv d1"><img src="assets/moon.webp" alt="The glowing shiba standing on the moon beside a rocket and a green flag, Earth behind him" loading="lazy"><figcaption>TOP FLOOR</figcaption></figure>
+      <div>
+        <h2 class="big glow rv">Don't just wait for the season. <em>Be part of its story.</em></h2>
+        <div class="roof__acts rv d1">
+          <div class="ca" data-ca>
+            <span class="ca__tag">CA</span>
+            <span class="ca__val" data-ca-val></span>
+            <button class="ca__copy" data-ca-copy>COPY</button>
+          </div>
+          <a class="xbtn" data-x target="_blank" rel="noopener"><svg class="xmark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>FOLLOW ON X<span class="xbtn__up" aria-hidden="true"></span></a>
+        </div>
+      </div>
+    </div>
+    <footer class="foot">
+      <p>© 2026 $UPTOBER. A meme coin with no intrinsic value or expectation of financial return. No guaranteed runners. Nothing here is financial advice.</p>
+      <div class="foot__links"><a data-x target="_blank" rel="noopener">X</a><a href="#lobby" id="toLobby">Back to the lobby</a></div>
+    </footer>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script>
+/* =========================================================
+   CONFIG — schimbă aici:
+   ca:     adresa contractului (lasă "" până la lansare)
+   x:      linkul contului tău de X
+   ticker: tickerul
+   ========================================================= */
+const CONFIG = {
+  ca: "",
+  x: "https://x.com/",
+  ticker: "$UPTOBER"
+};
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const coarse = matchMedia('(pointer: coarse)').matches;
+const hasGSAP = !!window.gsap;
+
+/* ---------- Config wiring ---------- */
+$$('[data-x]').forEach(a => a.href = CONFIG.x);
+$$('[data-ticker]').forEach(e => e.textContent = CONFIG.ticker);
+$$('[data-ca]').forEach(box => {
+  const v = $('[data-ca-val]', box), b = $('[data-ca-copy]', box);
+  if (CONFIG.ca){ v.textContent = CONFIG.ca; v.title = CONFIG.ca; b.addEventListener('click', copyCA); }
+  else { box.classList.add('is-empty'); v.textContent = 'LOADING AT LAUNCH...'; b.disabled = true; }
+});
+if (CONFIG.ca){ const bc = $('#barCa'); bc.hidden = false; bc.addEventListener('click', copyCA); }
+const toast = $('#toast'); let toastT;
+function say(msg){ toast.textContent = msg; toast.classList.add('is-on'); clearTimeout(toastT); toastT = setTimeout(() => toast.classList.remove('is-on'), 2200); }
+async function copyCA(e){
+  let ok = false;
+  try { await navigator.clipboard.writeText(CONFIG.ca); ok = true; } catch (_) {
+    const t = document.createElement('textarea'); t.value = CONFIG.ca; t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select(); try { ok = document.execCommand('copy'); } catch (_) {} t.remove();
+  }
+  say(ok ? 'Copied. Going up.' : 'Copy failed. Select the address and copy it manually.');
+  if (e) riseNumbers(e.clientX, e.clientY);
+}
+const GAINS = ['+1.91%', '+7.97%', '+31.54%', '+2.24%', '+$26,351', '+$11,076', '+100%', 'ATH'];
+function riseNumbers(x, y){
+  if (!hasGSAP || reduce) return;
+  for (let i = 0; i < 12; i++){
+    const n = document.createElement('div'); n.className = 'rise'; n.textContent = GAINS[i % GAINS.length];
+    n.style.left = x + 'px'; n.style.top = y + 'px'; document.body.appendChild(n);
+    gsap.fromTo(n, { opacity: 1, scale: .8 }, { x: (Math.random() - .5) * 220, y: -120 - Math.random() * 180, opacity: 0, scale: 1 + Math.random() * .6, duration: 1.2 + Math.random() * .6, ease: 'power2.out', onComplete: () => n.remove() });
+  }
+}
+
+/* ---------- Rising arrows inside the portal ---------- */
+const rise = $('#rise');
+for (let i = 0; i < 14; i++){ const a = document.createElement('i'); a.style.left = (4 + Math.random() * 92) + '%'; a.style.setProperty('--d', (2.2 + Math.random() * 2.6) + 's'); a.style.setProperty('--dl', (-Math.random() * 4) + 's'); a.style.transform = `scale(${.6 + Math.random() * .9})`; rise.appendChild(a); }
+
+/* ---------- Split big lines into words ---------- */
+$$('[data-split]').forEach(h => { h.innerHTML = h.textContent.split(' ').map(w => `<span>${w}&nbsp;</span>`).join(''); });
+
+/* ---------- 3D title ---------- */
+const title = $('#title');
+(function build3D(){
+  const txt = title.textContent.trim(); title.textContent = '';
+  const inner = document.createElement('span'); inner.className = 't3d__in'; inner.setAttribute('aria-hidden', 'true');
+  const LAYERS = 14;
+  [...txt].forEach(ch => {
+    const l = document.createElement('span'); l.className = 't3d__l';
+    for (let i = LAYERS; i >= 1; i--){
+      const k = document.createElement('span'); k.className = 't3d__k'; k.textContent = ch;
+      const t = i / LAYERS;
+      k.style.cssText = `--i:${i};--k:rgb(${Math.round(lerp(40, 3, t))},${Math.round(lerp(140, 30, t))},${Math.round(lerp(40, 10, t))})`;
+      l.appendChild(k);
+    }
+    const f = document.createElement('span'); f.className = 't3d__f'; f.textContent = ch; l.appendChild(f);
+    inner.appendChild(l);
+  });
+  title.appendChild(inner);
+})();
+const tIn = $('.t3d__in', title), tLetters = $$('.t3d__l', title);
+if (hasGSAP && !reduce){
+  gsap.set(tIn, { '--rx': '10deg', '--ry': '-12deg' });
+  const rx = gsap.quickTo(tIn, '--rx', { duration: 1, ease: 'power3.out' });
+  const ry = gsap.quickTo(tIn, '--ry', { duration: 1, ease: 'power3.out' });
+  addEventListener('pointermove', e => { rx(`${10 - (e.clientY / innerHeight - .5) * 18}deg`); ry(`${-12 + (e.clientX / innerWidth - .5) * 30}deg`); }, { passive: true });
+  if (coarse) gsap.to(tIn, { '--ry': '10deg', duration: 3.4, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+  gsap.to(title, { '--shine': '300%', duration: 2.2, ease: 'power2.inOut', repeat: -1, repeatDelay: 2.6, delay: 4 });
+  tLetters.forEach(l => l.addEventListener('pointerenter', () => { if (!gsap.isTweening(l)) gsap.fromTo(l, { y: 0 }, { y: '-.25em', duration: .25, yoyo: true, repeat: 1, ease: 'power2.out' }); }));
+}
+
+/* ---------- Image tilt ---------- */
+if (hasGSAP && !coarse && !reduce){
+  $$('.shot').forEach(s => {
+    s.addEventListener('pointermove', e => { const r = s.getBoundingClientRect(); gsap.to(s, { rotateY: ((e.clientX - r.left) / r.width - .5) * 10, rotateX: -((e.clientY - r.top) / r.height - .5) * 10, transformPerspective: 1000, duration: .5 }); });
+    s.addEventListener('pointerleave', () => gsap.to(s, { rotateX: 0, rotateY: 0, duration: .8 }));
+  });
+}
+
+/* =========================================================
+   Inverted tower: normal scrolling moves the floors down,
+   so it feels like the elevator is rising.
+   ========================================================= */
+const tower = $('#tower'), spacer = $('#spacer');
+let towerH = 0;
+function layout(){ towerH = tower.offsetHeight; spacer.style.height = towerH + 'px'; }
+function applyTower(y){ tower.style.transform = `translate3d(0,${(-(towerH - innerHeight) + y).toFixed(1)}px,0)`; }
+function goTo(floorEl){
+  // distance from the bottom of the tower to the bottom of that floor
+  const fromBottom = towerH - (floorEl.offsetTop + floorEl.offsetHeight);
+  lenis ? lenis.scrollTo(fromBottom, { duration: 3.2 }) : scrollTo({ top: fromBottom, behavior: 'smooth' });
+}
+$('#brand').addEventListener('click', e => { e.preventDefault(); goTo($('#lobby')); });
+$('#toLobby').addEventListener('click', e => { e.preventDefault(); goTo($('#lobby')); });
+
+/* reveals (IntersectionObserver sees the transformed floors) */
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }), { threshold: .18 });
+$$('.rv').forEach(el => io.observe(el));
+const io2 = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting || e.target.dataset.done || !hasGSAP || reduce) return;
+  e.target.dataset.done = 1;
+  gsap.fromTo($$('span', e.target), { y: '-1.2em', opacity: 0, rotateX: 90 }, { y: 0, opacity: 1, rotateX: 0, stagger: .08, duration: 1, ease: 'back.out(2)' });
+}), { threshold: .4 });
+$$('[data-split]').forEach(el => io2.observe(el));
+
+/* =========================================================
+   THE SHAFT (three.js): a spiral tower of glowing glass candles,
+   arrows and prices rising past you, floor rings, and the moon on top
+   ========================================================= */
+const S = { ready: false };
+const TOP = 250;
+function cvTex(w, h, draw){ const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t; }
+function buildShaft(){
+  if (!window.THREE) return false;
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas: $('#shaft'), antialias: !coarse, powerPreference: 'high-performance' }); } catch (e) { return false; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, coarse ? 1.25 : 1.6));
+  renderer.setSize(innerWidth, innerHeight, false);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('#020a05');
+  scene.fog = new THREE.FogExp2('#03140a', .05);
+  const camera = new THREE.PerspectiveCamera(innerWidth < 760 ? 72 : 60, innerWidth / innerHeight, .1, 400);
+  scene.add(new THREE.AmbientLight('#2f6b3a', .9));
+  const key = new THREE.PointLight('#7dff5a', 1.5, 30, 2); scene.add(key);
+  const rim = new THREE.DirectionalLight('#b9ff9e', .5); rim.position.set(-3, 5, 2); scene.add(rim);
+
+  // spiral of glass candles
+  const N = coarse ? 140 : 200;
+  const body = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ roughness: .15, metalness: .35, transparent: true, opacity: .55, emissive: '#06240c', emissiveIntensity: 1, depthWrite: false }), N);
+  const wick = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: '#b9ff9e', transparent: true, opacity: .8 }), N);
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), p = new THREE.Vector3(), sc = new THREE.Vector3(), col = new THREE.Color();
+  for (let i = 0; i < N; i++){
+    const a = i * 2.39996, r = 9 + (i % 5) * 1.6;
+    const y = -8 + i / N * (TOP + 24);
+    const h = 1.2 + Math.random() * 3.6, w = .7 + Math.random() * .35;
+    const red = y < 14 && Math.random() < .75;
+    p.set(Math.cos(a) * r, y, Math.sin(a) * r); q.setFromEuler(new THREE.Euler(0, -a, 0));
+    sc.set(w, h, w); m.compose(p, q, sc); body.setMatrixAt(i, m);
+    col.set(red ? '#e0203a' : (Math.random() < .5 ? '#1fd14c' : '#3fe85a')); body.setColorAt(i, col);
+    sc.set(.06, h + 1.2 + Math.random() * 1.5, .06); m.compose(p, q, sc); wick.setMatrixAt(i, m);
+    wick.setColorAt(i, col.set(red ? '#ff8a96' : '#b9ff9e'));
+  }
+  scene.add(body, wick);
+
+  // glowing floor rings with labels
+  const ringMat = new THREE.MeshBasicMaterial({ color: '#7dff5a', transparent: true, opacity: .55, side: THREE.DoubleSide });
+  const labels = [];
+  for (let f = 1; f <= 31; f++){
+    const y = 2 + (f - 1) / 30 * TOP;
+    const ring = new THREE.Mesh(new THREE.RingGeometry(4.6, 4.72, 96), ringMat); ring.rotation.x = -Math.PI / 2; ring.position.y = y - 1.4; scene.add(ring);
+    const tex = cvTex(256, 64, (g, w, h) => { g.font = '600 34px "Share Tech Mono", monospace'; g.fillStyle = '#b9ff9e'; g.shadowColor = '#39ff6a'; g.shadowBlur = 14; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(`FLOOR ${String(f).padStart(2, '0')}`, w / 2, h / 2); });
+    for (let k = 0; k < 3; k++){
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+      const a = k / 3 * Math.PI * 2 + f;
+      s.position.set(Math.cos(a) * 4.9, y - 1.1, Math.sin(a) * 4.9); s.scale.set(1.6, .4, 1); scene.add(s); labels.push(s);
+    }
+  }
+
+  // arrows rising past you
+  const shape = new THREE.Shape();
+  shape.moveTo(0, .6); shape.lineTo(.42, .1); shape.lineTo(.15, .1); shape.lineTo(.15, -.6); shape.lineTo(-.15, -.6); shape.lineTo(-.15, .1); shape.lineTo(-.42, .1); shape.lineTo(0, .6);
+  const arrowGeo = new THREE.ExtrudeGeometry(shape, { depth: .12, bevelEnabled: false });
+  const AN = coarse ? 60 : 110;
+  const arrows = new THREE.InstancedMesh(arrowGeo, new THREE.MeshBasicMaterial({ color: '#2fe05a', transparent: true, opacity: .55, blending: THREE.AdditiveBlending, depthWrite: false }), AN);
+  const arrowData = Array.from({ length: AN }, () => ({ a: Math.random() * 6.283, r: 5 + Math.random() * 13, y: Math.random() * 60 - 20, v: 3 + Math.random() * 7, s: .5 + Math.random() * 1.3 }));
+  scene.add(arrows);
+
+  // prices drifting up in the distance
+  const PRICES = ['$1,403,390.40', '$46,200.15', '$26,348.4', '$15,830.85', '+31.54%', '+7.97%', '+1.91%', '+$11,076.40'];
+  const priceTex = PRICES.map(s => cvTex(512, 96, (g, w, h) => { g.font = '700 64px Manrope, Arial, sans-serif'; g.fillStyle = '#b9ff9e'; g.shadowColor = '#39ff6a'; g.shadowBlur = 22; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(s, w / 2, h / 2); }));
+  const prices = Array.from({ length: coarse ? 20 : 34 }, (_, i) => {
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: priceTex[i % priceTex.length], transparent: true, depthWrite: false, opacity: .8, blending: THREE.AdditiveBlending }));
+    const a = Math.random() * 6.283, r = 13 + Math.random() * 14;
+    s.position.set(Math.cos(a) * r, Math.random() * 60 - 20, Math.sin(a) * r); const k = 2.6 + Math.random() * 2.4; s.scale.set(k, k * .19, 1);
+    s.userData = { v: 1 + Math.random() * 2.5 }; scene.add(s); return s;
+  });
+
+  // elevator cage and cables around the camera
+  const cage = new THREE.Group();
+  const cageMat = new THREE.MeshBasicMaterial({ color: '#39ff6a', transparent: true, opacity: .35 });
+  [[-2.2, -2.2], [2.2, -2.2], [-2.2, 2.2], [2.2, 2.2]].forEach(([x, z]) => { const c = new THREE.Mesh(new THREE.BoxGeometry(.03, 60, .03), cageMat); c.position.set(x, 0, z); cage.add(c); });
+  scene.add(cage);
+
+  // stars and the moon at the top
+  const sg = new THREE.BufferGeometry(); const sp = new Float32Array(1600 * 3);
+  for (let i = 0; i < 1600; i++){ const a = Math.random() * 6.283, r = 60 + Math.random() * 90; sp[i * 3] = Math.cos(a) * r; sp[i * 3 + 1] = TOP * .55 + Math.random() * (TOP * .7); sp[i * 3 + 2] = Math.sin(a) * r; }
+  sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
+  const stars = new THREE.Points(sg, new THREE.PointsMaterial({ color: '#e9ffe0', size: .35, transparent: true, opacity: 0, depthWrite: false }));
+  scene.add(stars);
+  const moonTex = cvTex(512, 256, (g, w, h) => { g.fillStyle = '#9aa39a'; g.fillRect(0, 0, w, h); for (let i = 0; i < 220; i++){ const r = 2 + Math.random() * 18; g.fillStyle = `rgba(${Math.random() < .5 ? 60 : 180},${Math.random() < .5 ? 66 : 190},${Math.random() < .5 ? 60 : 180},${.15 + Math.random() * .3})`; g.beginPath(); g.arc(Math.random() * w, Math.random() * h, r, 0, 6.283); g.fill(); } });
+  const moon = new THREE.Mesh(new THREE.SphereGeometry(14, 48, 32), new THREE.MeshStandardMaterial({ map: moonTex, roughness: 1, emissive: '#1c3a1f', emissiveIntensity: .6 }));
+  moon.position.set(22, TOP + 38, -70); scene.add(moon);
+  const moonLight = new THREE.PointLight('#dfffd0', 0, 200, 1.4); moonLight.position.set(0, TOP + 30, -30); scene.add(moonLight);
+
+  Object.assign(S, { ready: true, renderer, scene, camera, key, arrows, arrowData, prices, cage, stars, moonLight, labels });
+  return true;
+}
+
+/* ---------- Render + scroll loop ---------- */
+const mouse = { x: 0, y: 0 };
+addEventListener('pointermove', e => { mouse.x = e.clientX / innerWidth * 2 - 1; mouse.y = -(e.clientY / innerHeight * 2 - 1); }, { passive: true });
+let camY = -12, camYaw = 0, lastT = 0, lastFloor = 0, introRise = 0;
+
+function frame(ts){
+  requestAnimationFrame(frame);
+  const t = ts / 1000, dt = Math.min(.05, (ts - lastT) / 1000 || .016); lastT = ts;
+  const K = r => 1 - Math.pow(1 - r, dt * 60);
+  const y = lenis ? lenis.animatedScroll : scrollY;
+  const max = Math.max(1, towerH - innerHeight);
+  const p = clamp(y / max, 0, 1);
+  applyTower(y);
+
+  // floor indicator
+  const floor = Math.round(1 + p * 30);
+  if (floor !== lastFloor){ $('#indNum').textContent = String(floor).padStart(2, '0'); lastFloor = floor;
+    if (hasGSAP && !reduce) gsap.fromTo('#indNum', { y: 10, opacity: .3 }, { y: 0, opacity: 1, duration: .3 }); }
+  $('#indDot').style.setProperty('--p', (p * 100).toFixed(1) + '%');
+
+  if (!S.ready) return;
+  const { camera, scene, renderer } = S;
+  const targetY = 2 + p * TOP + introRise;
+  const prevY = camY;
+  camY = lerp(camY, targetY, K(.08));
+  const vy = (camY - prevY) / Math.max(dt, .001);
+  camYaw += dt * (.05 + Math.abs(vy) * .004);
+  camera.position.set(Math.sin(camYaw * .7) * .6, camY, Math.cos(camYaw * .7) * .6);
+  camera.rotation.set(.1 + mouse.y * .12 + clamp(vy * .003, -.15, .15), camYaw + mouse.x * -.35, 0, 'YXZ');
+  S.key.position.set(0, camY + 1.5, 0);
+  S.cage.position.y = camY;
+
+  // arrows rise faster the faster you climb
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), pv = new THREE.Vector3(), sv = new THREE.Vector3(), eu = new THREE.Euler();
+  S.arrowData.forEach((a, i) => {
+    a.y += (a.v + Math.max(0, vy) * .6) * dt;
+    if (a.y > camY + 30){ a.y = camY - 25 - Math.random() * 10; a.a = Math.random() * 6.283; }
+    if (a.y < camY - 40) a.y = camY + 25;
+    pv.set(Math.cos(a.a) * a.r, a.y, Math.sin(a.a) * a.r);
+    eu.set(0, -a.a + Math.PI / 2, 0); q.setFromEuler(eu); sv.setScalar(a.s);
+    m.compose(pv, q, sv); S.arrows.setMatrixAt(i, m);
+  });
+  S.arrows.instanceMatrix.needsUpdate = true;
+  S.prices.forEach(s => { s.position.y += (s.userData.v + Math.max(0, vy) * .3) * dt; if (s.position.y > camY + 28) s.position.y = camY - 24 - Math.random() * 8; if (s.position.y < camY - 34) s.position.y = camY + 24; });
+
+  // sky opens up near the top
+  const top = clamp((p - .7) / .3, 0, 1);
+  S.stars.material.opacity = top;
+  S.moonLight.intensity = top * 1.4;
+  scene.fog.density = lerp(.05, .014, top);
+  scene.background.setRGB(lerp(.008, .004, top), lerp(.04, .012, top), lerp(.02, .03, top));
+  scene.fog.color.copy(scene.background);
+
+  renderer.render(scene, camera);
+}
+
+/* ---------- Smooth scroll ---------- */
+let lenis = null;
+if (window.Lenis && !reduce){
+  lenis = new Lenis({ lerp: .075, smoothWheel: true });
+  lenis.stop();
+  const raf = t => { lenis.raf(t); requestAnimationFrame(raf); }; requestAnimationFrame(raf);
+}
+
+/* ---------- Intro: call the elevator ---------- */
+const lift = $('#lift');
+let entered = false, autoT;
+function scramble(el, to, dur){
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const from = el.textContent, len = Math.max(from.length, to.length), t0 = performance.now();
+  return new Promise(res => { (function step(){
+    const k = clamp((performance.now() - t0) / dur, 0, 1), fixed = Math.floor(k * len);
+    let s = ''; for (let i = 0; i < len; i++) s += i < fixed ? (to[i] || '') : chars[(Math.random() * chars.length) | 0];
+    el.textContent = s; if (k < 1) requestAnimationFrame(step); else { el.textContent = to; res(); }
+  })(); });
+}
+async function callLift(fast){
+  if (entered) return; entered = true; clearTimeout(autoT);
+  $('#callBtn').classList.add('lit');
+  const display = $('#display');
+  const done = () => { lift.remove(); document.body.classList.remove('is-locked'); layout(); scrollTo(0, 0); if (lenis){ lenis.scrollTo(0, { immediate: true }); lenis.start(); } $('#ind').classList.add('on'); };
+  if (!hasGSAP || reduce){ display.classList.add('is-up'); $('#dispTxt').textContent = 'UPTOBER'; done(); heroIn(); return; }
+  if (!fast){
+    await scramble($('#dispTxt'), 'UPTOBER', 900);
+  } else $('#dispTxt').textContent = 'UPTOBER';
+  display.classList.add('is-up');
+  gsap.timeline({ onComplete: done })
+    .fromTo('#ding', { opacity: 0, scale: .6, letterSpacing: '.1em' }, { opacity: 1, scale: 1, letterSpacing: '.4em', duration: .5, ease: 'back.out(2)' }, 0)
+    .to('#ding', { opacity: 0, y: -20, duration: .5 }, .9)
+    .to('#flood', { opacity: 1, duration: .8, ease: 'power2.in' }, .35)
+    .to('.lift__gap', { opacity: 1, width: 30, duration: .5 }, .35)
+    .to('#doorL', { xPercent: -100, duration: 1.6, ease: 'power3.inOut' }, .7)
+    .to('#doorR', { xPercent: 100, duration: 1.6, ease: 'power3.inOut' }, .7)
+    .to('.lift__top, .call, #skip', { opacity: 0, duration: .5 }, .7)
+    .to(lift, { backgroundColor: 'rgba(1,5,3,0)', duration: 1 }, 1)
+    .to('#flood', { opacity: 0, duration: 1.2, ease: 'power2.out' }, 1.6)
+    .add(heroIn, 1.2)
+    .add(() => lift.classList.add('is-open'), 1.2);
+  const rise = { v: -14 };
+  gsap.to(rise, { v: 0, duration: 3, ease: 'power3.out', delay: .6, onUpdate: () => introRise = rise.v });
+}
+function heroIn(){
+  $$('#lobby .rv').forEach(el => el.classList.remove('in'));
+  requestAnimationFrame(() => $$('#lobby .rv').forEach(el => el.classList.add('in')));
+  if (!hasGSAP || reduce) return;
+  gsap.fromTo(tLetters, { y: 140, opacity: 0, rotateX: -80 }, { y: 0, opacity: 1, rotateX: 0, duration: 1.3, stagger: .08, ease: 'expo.out', delay: .2 });
+  gsap.fromTo('#bar', { opacity: 0 }, { opacity: 1, duration: 1, delay: .8 });
+}
+$('#callBtn').addEventListener('click', e => { e.stopPropagation(); callLift(false); });
+lift.addEventListener('click', () => callLift(false));
+$('#skip').addEventListener('click', e => { e.stopPropagation(); callLift(true); });
+addEventListener('keydown', e => { if (entered) return; if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); callLift(false); } if (e.key === 'Escape') callLift(true); });
+
+/* ---------- Boot ---------- */
+layout();
+applyTower(0);
+const shaftOK = buildShaft();
+introRise = -14;
+requestAnimationFrame(frame);
+if (hasGSAP && !reduce){ gsap.set('#bar', { opacity: 0 }); gsap.set(tLetters, { opacity: 0 }); }
+autoT = setTimeout(() => callLift(false), 4200);
+addEventListener('load', layout);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+let rT; addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(() => {
+  layout();
+  if (S.ready){ S.renderer.setSize(innerWidth, innerHeight, false); S.camera.aspect = innerWidth / innerHeight; S.camera.fov = innerWidth < 760 ? 72 : 60; S.camera.updateProjectionMatrix(); }
+}, 150); });
+</script>
+</body>
+</html>
